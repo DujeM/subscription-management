@@ -49,7 +49,7 @@ export const config = {
   session: {
     strategy: "jwt",
   },
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: process.env.SECRET,
 } satisfies NextAuthOptions;
 
 // Use it in server contexts
