@@ -8,6 +8,7 @@ import { getServerSession } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import prisma from "@/lib/prisma";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
+import { compare } from "bcrypt";
 
 export const config = {
   providers: [
@@ -17,7 +18,6 @@ export const config = {
         password: {},
       },
       async authorize(credentials) {
-        console.log(credentials);
         if (!credentials?.email || !credentials?.password) {
           throw new Error("Invalid credentials");
         }
@@ -32,12 +32,15 @@ export const config = {
           throw new Error("User not found");
         }
 
-        const isCorrectPassword = user.password === credentials.password;
+        const correctPassword = await compare(
+          credentials.password,
+          user.password
+        );
 
-        if (!isCorrectPassword) {
+        if (!correctPassword) {
           throw new Error("Wrong password");
         }
-        console.log(user);
+
         return user;
       },
     }),

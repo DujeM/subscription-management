@@ -1,6 +1,7 @@
 import { config } from "@/helpers/auth";
 import NextAuth, { NextAuthOptions } from "next-auth";
 
-export const authOptions: NextAuthOptions = NextAuth(config);
+const authOptions: NextAuthOptions = config;
+const handler = NextAuth(authOptions);
 
-export { authOptions as GET, authOptions as POST };
+export { handler as GET, handler as POST };

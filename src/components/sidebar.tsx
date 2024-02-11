@@ -1,20 +1,13 @@
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import Logout from "./logout";
-
-export async function getCurrentUser() {
-    const session = await getServerSession(authOptions);
-    console.log(session)
-    return session?.user?.name;
-}
+import { auth } from "@/helpers/auth";
 
 export default async function Sidebar() {
-    const session = await getServerSession(authOptions);
-    console.log(session)
-    // if (!session || !session.user) {
-    //     redirect('/auth/login');
-    // }
+    const session = await auth();
+
+    if (!session || !session.user) {
+        redirect('/auth/login');
+    }
 
     return (
         <>
