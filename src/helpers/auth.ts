@@ -28,6 +28,8 @@ export const config = {
           },
         });
 
+        console.log(user);
+
         if (!user || !user.password) {
           throw new Error("User not found");
         }
@@ -50,6 +52,18 @@ export const config = {
     strategy: "jwt",
   },
   secret: process.env.SECRET,
+  callbacks: {
+    session: ({ session, token }) => ({
+      ...session,
+      user: {
+        ...session.user,
+        id: token.sub,
+      },
+    }),
+  },
+  pages: {
+    signIn: "/auth/login",
+  },
 } satisfies NextAuthOptions;
 
 // Use it in server contexts

@@ -45,13 +45,15 @@ model User {
 }
 
 model Subscription {
-  id          String  @id @default(cuid())
-  client      Client? @relation(fields: [clientId], references: [id])
+  id          String   @id @default(cuid())
+  client      Client?  @relation(fields: [clientId], references: [id])
   clientId    String?
   users       User[]
   title       String
   description String
   price       Int
+  createdAt   DateTime @default(now()) @map(name: "created_at")
+  updatedAt   DateTime @updatedAt @map(name: "updated_at")
 }
 
 model Account {
