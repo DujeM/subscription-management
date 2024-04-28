@@ -28,8 +28,6 @@ export const config = {
           },
         });
 
-        console.log(user);
-
         if (!user || !user.password) {
           throw new Error("User not found");
         }
