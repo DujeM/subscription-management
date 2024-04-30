@@ -19,13 +19,13 @@ model Client {
   password      String
   createdAt     DateTime       @default(now()) @map(name: "created_at")
   updatedAt     DateTime       @updatedAt @map(name: "updated_at")
-  users         User[]
+  customers     Customer[]
   subscriptions Subscription[]
   accounts      Account[]
   sessions      Session[]
 }
 
-model User {
+model Customer {
   id             String        @id @default(cuid())
   client         Client?       @relation(fields: [clientId], references: [id])
   clientId       String?
@@ -41,25 +41,23 @@ model User {
   updatedAt      DateTime      @updatedAt @map(name: "updated_at")
   accounts       Account[]
   sessions       Session[]
-
-  @@map(name: "users")
 }
 
 model Subscription {
-  id          String   @id @default(cuid())
-  client      Client?  @relation(fields: [clientId], references: [id])
+  id          String     @id @default(cuid())
+  client      Client?    @relation(fields: [clientId], references: [id])
   clientId    String?
-  users       User[]
+  customers   Customer[]
   title       String
   description String
   price       Int
-  createdAt   DateTime @default(now()) @map(name: "created_at")
-  updatedAt   DateTime @updatedAt @map(name: "updated_at")
+  createdAt   DateTime   @default(now()) @map(name: "created_at")
+  updatedAt   DateTime   @updatedAt @map(name: "updated_at")
 }
 
 model Account {
   id                 String    @id @default(cuid())
-  userId             String?   @map("user_id")
+  customerId         String?   @map("user_id")
   clientId           String?
   providerType       String
   providerId         String
@@ -69,23 +67,23 @@ model Account {
   accessTokenExpires DateTime?
   createdAt          DateTime  @default(now())
   updatedAt          DateTime  @updatedAt
-  user               User?     @relation(fields: [userId], references: [id])
+  customer           Customer? @relation(fields: [customerId], references: [id])
   client             Client?   @relation(fields: [clientId], references: [id])
 
   @@unique([providerId, providerAccountId])
 }
 
 model Session {
-  id           String   @id @default(cuid())
-  userId       String?  @map("user_id")
+  id           String    @id @default(cuid())
+  customerId   String?   @map("user_id")
   clientId     String?
   expires      DateTime
-  sessionToken String   @unique @map("session_token")
-  accessToken  String   @unique
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  user         User?    @relation(fields: [userId], references: [id])
-  client       Client?  @relation(fields: [clientId], references: [id])
+  sessionToken String    @unique @map("session_token")
+  accessToken  String    @unique
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  customer     Customer? @relation(fields: [customerId], references: [id])
+  client       Client?   @relation(fields: [clientId], references: [id])
 }
 
 model VerificationRequest {

@@ -1,13 +1,12 @@
 import { auth } from "@/helpers/auth";
 import prisma from "@/lib/prisma";
 import { randomUUID } from "crypto";
-import { User } from "next-auth";
 import { redirect } from "next/navigation";
 import EmailVerifyTemplate from '@/components/emailVerifyTemplate';
 import { Resend } from 'resend';
 
 
-export default async function NewUserPage() {
+export default async function NewCustomerPage() {
     const session = await auth();
 
     const subscriptions = await prisma.subscription.findMany({
@@ -25,7 +24,7 @@ export default async function NewUserPage() {
         const subscription = formData.get("subscription") as string;
         const resend = new Resend(process.env.RESEND_KEY);
 
-        const newUser = await prisma.user.create({
+        const newCustomer = await prisma.customer.create({
             data: {
                 fullName: fullName,
                 email: email,
@@ -46,10 +45,10 @@ export default async function NewUserPage() {
             from: 'subscription@excode.hr',
             to: [email],
             subject: 'Please confirm your email',
-            react: EmailVerifyTemplate({ fullName: newUser.fullName, clientName: newUser.client?.name, subscription: newUser.subscription?.title, emailToken: newUser.emailToken })
+            react: EmailVerifyTemplate({ fullName: newCustomer.fullName, clientName: newCustomer.client?.name, subscription: newCustomer.subscription?.title, emailToken: newCustomer.emailToken })
         });
 
-        redirect('/users');
+        redirect('/customers');
     };
 
     return (
@@ -58,7 +57,7 @@ export default async function NewUserPage() {
                 <div className="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
                     <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
                         <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
-                            Create a new user
+                            Create a new customer
                         </h1>
                         <form className="space-y-4 md:space-y-6" action={create}>
                             <div>
