@@ -2,9 +2,11 @@ import Link from "next/link";
 import { auth } from "@/helpers/auth";
 import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import Stripe from 'stripe';
 
 export default async function SubscriptionsListPage() {
     const session = await auth();
+    const stripe = new Stripe(process.env.STRIPE_TEST_KEY as string);
 
     const subscriptions = await prisma.subscription.findMany({
         where: {
@@ -18,12 +20,18 @@ export default async function SubscriptionsListPage() {
     const deleteSubscription = async (formData: FormData) => {
         "use server"
         const subId = formData.get("subId") as string;
+        const productId = formData.get("productId") as string;
+        const scopeStripe = new Stripe(process.env.STRIPE_TEST_KEY as string);
 
         await prisma.subscription.delete({
             where: {
                 id: subId
             }
-        })
+        });
+
+        await scopeStripe.products.update(productId, {
+          active: false,
+        });
 
         revalidatePath('/subscriptions');
     }
@@ -51,6 +59,7 @@ export default async function SubscriptionsListPage() {
                                             <th>Title</th>
                                             <th>Description</th>
                                             <th>Price</th>
+                                            <th>Currency</th>
                                             <th>Customers</th>
                                             <th>Actions</th>
                                         </tr>
@@ -61,6 +70,7 @@ export default async function SubscriptionsListPage() {
                                                 <td>{sub.title}</td>
                                                 <td>{sub.description}</td>
                                                 <td>{sub.price}</td>
+                                                <td>{sub.currency.toUpperCase()}</td>
                                                 <td>{sub.customers.length}</td>
                                                 <td className="flex">
                                                     <Link href={`/subscriptions/${sub.id}`} className="cursor-pointer">
@@ -70,6 +80,7 @@ export default async function SubscriptionsListPage() {
                                                     </Link>
                                                     <form action={deleteSubscription}>
                                                         <input type="text" name="subId" id="subId" defaultValue={sub.id} hidden/>
+                                                        <input type="text" name="productId" id="productId" defaultValue={sub.productId} hidden/>
                                                         <button type="submit" className="cursor-pointer">
                                                             <svg className="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                                                                 <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 7h14m-9 3v8m4-8v8M10 3h4a1 1 0 0 1 1 1v3H9V4a1 1 0 0 1 1-1ZM6 7h12v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7Z" />

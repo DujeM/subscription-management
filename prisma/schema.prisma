@@ -4,8 +4,8 @@ generator client {
 
 datasource db {
   provider  = "postgresql"
-  url       = env("POSTGRES_PRISMA_URL") // uses connection pooling
-  directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
+  url       = env("POSTGRES_PRISMA_URL")
+  directUrl = env("POSTGRES_URL_NON_POOLING")
 }
 
 model Client {
@@ -17,19 +17,17 @@ model Client {
   phone         String?
   email         String         @unique
   password      String
-  createdAt     DateTime       @default(now()) @map(name: "created_at")
-  updatedAt     DateTime       @updatedAt @map(name: "updated_at")
-  customers     Customer[]
-  subscriptions Subscription[]
+  createdAt     DateTime       @default(now()) @map("created_at")
+  updatedAt     DateTime       @updatedAt @map("updated_at")
   accounts      Account[]
+  customers     Customer[]
   sessions      Session[]
+  subscriptions Subscription[]
 }
 
 model Customer {
   id             String        @id @default(cuid())
-  client         Client?       @relation(fields: [clientId], references: [id])
   clientId       String?
-  subscription   Subscription? @relation(fields: [subscriptionId], references: [id])
   subscriptionId String?
   fullName       String
   email          String        @unique
@@ -37,22 +35,26 @@ model Customer {
   emailToken     String        @unique
   phone          String?
   address        String?
-  createdAt      DateTime      @default(now()) @map(name: "created_at")
-  updatedAt      DateTime      @updatedAt @map(name: "updated_at")
+  createdAt      DateTime      @default(now()) @map("created_at")
+  updatedAt      DateTime      @updatedAt @map("updated_at")
   accounts       Account[]
+  client         Client?       @relation(fields: [clientId], references: [id])
+  subscription   Subscription? @relation(fields: [subscriptionId], references: [id])
   sessions       Session[]
 }
 
 model Subscription {
   id          String     @id @default(cuid())
-  client      Client?    @relation(fields: [clientId], references: [id])
   clientId    String?
-  customers   Customer[]
   title       String
   description String
-  price       Int
-  createdAt   DateTime   @default(now()) @map(name: "created_at")
-  updatedAt   DateTime   @updatedAt @map(name: "updated_at")
+  currency    String
+  price       String
+  createdAt   DateTime   @default(now()) @map("created_at")
+  updatedAt   DateTime   @updatedAt @map("updated_at")
+  productId   String
+  customers   Customer[]
+  client      Client?    @relation(fields: [clientId], references: [id])
 }
 
 model Account {
@@ -67,8 +69,8 @@ model Account {
   accessTokenExpires DateTime?
   createdAt          DateTime  @default(now())
   updatedAt          DateTime  @updatedAt
-  customer           Customer? @relation(fields: [customerId], references: [id])
   client             Client?   @relation(fields: [clientId], references: [id])
+  customer           Customer? @relation(fields: [customerId], references: [id])
 
   @@unique([providerId, providerAccountId])
 }
@@ -82,8 +84,8 @@ model Session {
   accessToken  String    @unique
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
-  customer     Customer? @relation(fields: [customerId], references: [id])
   client       Client?   @relation(fields: [clientId], references: [id])
+  customer     Customer? @relation(fields: [customerId], references: [id])
 }
 
 model VerificationRequest {
