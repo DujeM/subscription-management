@@ -26,21 +26,22 @@ model Client {
 }
 
 model Customer {
-  id             String        @id @default(cuid())
+  id             String         @id @default(cuid())
   clientId       String?
-  subscriptionId String?
   fullName       String
-  email          String        @unique
+  email          String         @unique
   emailConfirmed Boolean
-  emailToken     String        @unique
+  emailToken     String         @unique
   phone          String?
   address        String?
-  createdAt      DateTime      @default(now()) @map("created_at")
-  updatedAt      DateTime      @updatedAt @map("updated_at")
+  createdAt      DateTime       @default(now()) @map("created_at")
+  updatedAt      DateTime       @updatedAt @map("updated_at")
+  customerId     String
+  subscriptionId String
   accounts       Account[]
-  client         Client?       @relation(fields: [clientId], references: [id])
-  subscription   Subscription? @relation(fields: [subscriptionId], references: [id])
+  client         Client?        @relation(fields: [clientId], references: [id])
   sessions       Session[]
+  subscriptions  Subscription[] @relation("CustomerToSubscription")
 }
 
 model Subscription {
@@ -48,13 +49,14 @@ model Subscription {
   clientId    String?
   title       String
   description String
-  currency    String
   price       String
   createdAt   DateTime   @default(now()) @map("created_at")
   updatedAt   DateTime   @updatedAt @map("updated_at")
   productId   String
-  customers   Customer[]
+  currency    String
+  priceId     String
   client      Client?    @relation(fields: [clientId], references: [id])
+  customers   Customer[] @relation("CustomerToSubscription")
 }
 
 model Account {

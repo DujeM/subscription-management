@@ -38,6 +38,7 @@ export default async function NewSubscriptionPage() {
                 currency: currency,
                 price: price,
                 productId: newStripeProduct.id,
+                priceId: newStripeProduct.default_price.toString(),
                 clientId: session?.user.id
             }
         });

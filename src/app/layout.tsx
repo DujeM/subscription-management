@@ -4,6 +4,7 @@ import "./globals.css";
 import SessionProvider from "../providers/sessionProvider";
 import Sidebar from "@/components/sidebar";
 import { auth } from "@/helpers/auth";
+import { Toaster } from "react-hot-toast"
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -24,7 +25,10 @@ export default async function RootLayout({
       <body className={inter.className}>
         <main className="flex min-h-screen items-center bg-slate-900">
           {session && <Sidebar/>}
-          <SessionProvider session={session}>{children}</SessionProvider>
+          <SessionProvider session={session}>
+            {children}
+            <Toaster position="top-right" />
+            </SessionProvider>
         </main>
       </body>
     </html>
