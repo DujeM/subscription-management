@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { Resend } from "resend";
 import EmailDemoSuccessTemplate from "@/components/emailDemoSuccessTemplate";
 import DemoForm from "@/components/demoForm";
+import emailDemoClient from "@/components/emailDemoClient";
 
 export default async function Home() {
   const session = await auth();
@@ -30,7 +31,7 @@ export default async function Home() {
         from: "subscription@excode.hr",
         to: ["duje@excode.hr"],
         subject: "New Subscribx demo request",
-        react: EmailDemoSuccessTemplate(),
+        react: emailDemoClient({clientEmail: email}),
       });
     } catch (error) {
       return { error: error.message ? error.message : "Something went wrong!" };
