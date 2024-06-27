@@ -23,13 +23,14 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <main className="flex min-h-screen items-center bg-slate-900">
-          {session && <Sidebar/>}
+      {session && <main className="flex min-h-screen items-center bg-slate-900">
+          <Sidebar/>
           <SessionProvider session={session}>
             {children}
             <Toaster position="top-right" />
             </SessionProvider>
-        </main>
+        </main>}
+      {!session && <main className="min-h-screen bg-slate-900">{children}<Toaster position="top-right" /></main>}
       </body>
     </html>
   );

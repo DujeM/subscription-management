@@ -1,5 +1,6 @@
 import { auth } from "@/helpers/auth";
 import prisma from "@/lib/prisma";
+import Form from "./form";
 
 async function get(id: string) {
     const customer = await prisma.customer.findUnique({
@@ -31,8 +32,9 @@ export default async function UpdateSubscriptionPage({ params }: { params: { id:
                 <div className="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
                     <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
                         <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
-                            {customer.fullName}
+                            Update customer
                         </h1>
+                        <Form selectSubscriptions={subscriptions.map(s => { return { value: s.id, label: s.title }})} customer={customer} />
                     </div>
                 </div>
             </div>
