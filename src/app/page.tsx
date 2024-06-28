@@ -62,12 +62,12 @@ export default async function Home() {
       <h2 className="text-4xl md:text-5xl font-bold text-center">Bloat free software, focused on revenue</h2>
       <p className="py-6 text-center">Out of the box monthly recurring revenue platform with customer driven experience</p>
     </div>
-    <div className="flex gap-5 justify-center md:justify-between flex-wrap max-w-7xl mx-auto my-20">
+    <div className="flex p-5 gap-5 justify-center md:justify-between flex-wrap max-w-7xl mx-auto my-20">
       <div className="card w-96 h-96 shadow-xl">
         <figure className="bg-white p-5 h-60">
           <Image src={'/svg/subscriptions.svg'} alt="Subscriptions" width={384} height={226} className="p-5" />
         </figure>
-        <div className="card-body bg-primary rounded-es-2xl rounded-ee-2xl h-36">
+        <div className="card-body p-5 bg-primary rounded-es-2xl rounded-ee-2xl h-36">
           <h2 className="card-title">Subscriptions and customers</h2>
           <p>Easy setup, manage customers and their subscriptions</p>
         </div>
@@ -76,7 +76,7 @@ export default async function Home() {
         <figure className="bg-white p-5 h-60">
           <Image src={'/svg/reports.svg'} alt="Reports" width={384} height={226} className="p-5" />
         </figure>
-        <div className="card-body bg-primary rounded-es-2xl rounded-ee-2xl h-36">
+        <div className="card-body p-5 bg-primary rounded-es-2xl rounded-ee-2xl h-36">
           <h2 className="card-title">Reports</h2>
           <p>Monitor your growth with detailed reports</p>
         </div>
@@ -85,7 +85,7 @@ export default async function Home() {
         <figure className="bg-white p-5 h-60">
           <Image src={'/svg/checkout.svg'} alt="Checkout" width={384} height={226} className="p-5" />
         </figure>
-        <div className="card-body bg-primary rounded-es-2xl rounded-ee-2xl h-36">
+        <div className="card-body p-5 bg-primary rounded-es-2xl rounded-ee-2xl h-36">
           <h2 className="card-title">Integrated checkout</h2>
           <p>Integrated Stripe checkout, with invoices sent directly to your customers</p>
         </div>
@@ -99,7 +99,7 @@ export default async function Home() {
           Take advantage of our limited-time offer. Book a demo now and gain early access! Clients that enroll during the early access will have an ability to influence core features. Ready to take the next step? Book a demo to see how we can help you achieve your goals.
           </p>
         </div>
-        <div className="card bg-slate-900 w-full max-w-sm shrink-0 shadow-2xl">
+        <div className="card bg-slate-900 w-full max-w-xs shrink-0 shadow-2xl">
           <DemoForm demoRequest={demoRequest} />
         </div>
       </div>
