@@ -29,7 +29,7 @@ export default async function NewSubscriptionPage() {
             metadata: {
                 clientId: session?.user.id
             }
-          });
+          }, { stripeAccount: session.user.accountId });
         
         await prisma.subscription.create({
             data: {

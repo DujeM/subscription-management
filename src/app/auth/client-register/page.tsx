@@ -2,6 +2,7 @@ import { auth } from "@/helpers/auth";
 import prisma from "@/lib/prisma";
 import { hash } from "bcrypt";
 import { redirect } from "next/navigation";
+import Stripe from "stripe";
 
 export default async function RegisterPage() {
     const session = await auth();
@@ -16,6 +17,7 @@ export default async function RegisterPage() {
         const email = formData.get("email") as string;
         const password = formData.get("password") as string;
         const confirmPassword = formData.get("confirm-password")  as string;
+        const stripe = new Stripe(process.env.STRIPE_TEST_KEY as string);
 
         if (password !== confirmPassword) {
             return null;
@@ -23,11 +25,16 @@ export default async function RegisterPage() {
 
         const hashedPassword = await hash(password, 10);
 
+        const stripeAccount = await stripe.accounts.create({
+            email: email
+        })
+
         await prisma.client.create({
             data: {
                 name: name,
                 email: email,
-                password: hashedPassword
+                password: hashedPassword,
+                accountId: stripeAccount.id
             }
         });
 

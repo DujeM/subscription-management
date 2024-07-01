@@ -51,13 +51,26 @@ export const config = {
   },
   secret: process.env.SECRET,
   callbacks: {
-    session: ({ session, token }) => ({
+    session: ({ session, token, user }) => ({
       ...session,
       user: {
         ...session.user,
         id: token.sub,
+        accountId: token.accountId as string,
       },
     }),
+    async jwt({ token, user }) {
+      const client = await prisma.client.findUnique({
+        where: {
+          id: token.sub,
+        },
+      });
+
+      return {
+        ...token,
+        accountId: client.accountId,
+      };
+    },
   },
   pages: {
     signIn: "/auth/login",

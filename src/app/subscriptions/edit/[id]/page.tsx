@@ -39,7 +39,7 @@ export default async function UpdateSubscriptionPage({ params }: { params: { id:
         const updatedProduct = await scopeStripe.products.update(sub.productId, {
             name: title,
             description: description
-        });
+        }, { stripeAccount: session.user.accountId });
 
         redirect('/subscriptions');
     };

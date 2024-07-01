@@ -36,24 +36,30 @@ export async function createCustomer(formData: FormData) {
       throw new Error("A customer with that email address already exists.");
     }
 
-    const newStripeCustomer = await stripe.customers.create({
-      name: fullName,
-      email: email,
-      metadata: {
-        clientId: session?.user.id,
+    const newStripeCustomer = await stripe.customers.create(
+      {
+        name: fullName,
+        email: email,
+        metadata: {
+          clientId: session?.user.id,
+        },
       },
-    });
+      { stripeAccount: session.user.accountId }
+    );
 
-    const newStripeSubscription = await stripe.subscriptions.create({
-      customer: newStripeCustomer.id,
-      collection_method: "send_invoice",
-      days_until_due: 30,
-      items: subscriptions
-        .filter((s) => selectedSubscriptions.find((sub) => sub === s.id))
-        .map((s) => {
-          return { price: s.priceId };
-        }),
-    });
+    const newStripeSubscription = await stripe.subscriptions.create(
+      {
+        customer: newStripeCustomer.id,
+        collection_method: "send_invoice",
+        days_until_due: 30,
+        items: subscriptions
+          .filter((s) => selectedSubscriptions.find((sub) => sub === s.id))
+          .map((s) => {
+            return { price: s.priceId };
+          }),
+      },
+      { stripeAccount: session.user.accountId }
+    );
 
     const newCustomer = await prisma.customer.create({
       data: {
@@ -143,10 +149,13 @@ export async function updateCustomer(
 
     selectedSubscriptions.forEach(async (sub) => {
       if (!subItems.data.find((item) => item.price.product === sub.productId)) {
-        await stripe.subscriptionItems.create({
-          subscription: currentCustomer.subscriptionId,
-          price: sub.priceId,
-        });
+        await stripe.subscriptionItems.create(
+          {
+            subscription: currentCustomer.subscriptionId,
+            price: sub.priceId,
+          },
+          { stripeAccount: session.user.accountId }
+        );
       }
     });
 
@@ -186,8 +195,3 @@ export async function updateCustomer(
 
   redirect("/customers");
 }
-
-// A new item with Price price_1PNKLJRrNnLvy6TVlfLUFsjM can't be added to this Subscription
-// because an existing Subscription Item si_QGCZep2CzyrORR is already using that Price.
-// If you want to update the existing item (e.g., to adjust the quantity), pass the existing Subscription Item's `id`
-// in your update request: https://stripe.com/docs/api/subscriptions/update#update_subscription-items-id

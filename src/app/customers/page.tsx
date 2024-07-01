@@ -3,6 +3,7 @@ import { auth } from "@/helpers/auth";
 import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import TableRow from "@/components/tableRow";
 
 export default async function CustomersListPage() {
     const session = await auth();
@@ -64,7 +65,7 @@ export default async function CustomersListPage() {
                                     </thead>
                                     <tbody>
                                         {customers.map(customer => (
-                                            <tr key={customer.id}>
+                                            <TableRow key={customer.id} detailsLink={`/customers/${customer.id}`}>
                                                 <td>{customer.fullName}</td>
                                                 <td>{customer.email}</td>
                                                 <td>{customer.address}</td>
@@ -84,7 +85,7 @@ export default async function CustomersListPage() {
                                                         </button>
                                                     </form>
                                                 </td>
-                                            </tr>
+                                            </TableRow>
                                         ))}
                                     </tbody>
                                 </table>

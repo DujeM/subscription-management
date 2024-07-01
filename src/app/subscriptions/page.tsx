@@ -3,6 +3,8 @@ import { auth } from "@/helpers/auth";
 import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import Stripe from 'stripe';
+import { redirect } from "next/navigation";
+import TableRow from "@/components/tableRow";
 
 export default async function SubscriptionsListPage() {
     const session = await auth();
@@ -36,6 +38,10 @@ export default async function SubscriptionsListPage() {
         revalidatePath('/subscriptions');
     }
 
+    const navigateToDetailsPage = async (id: string) => {
+        redirect(`subscriptions/${id}`);
+    }
+
     return (
         <>
             <section className="p-6 min-h-screen size-full">
@@ -66,7 +72,7 @@ export default async function SubscriptionsListPage() {
                                     </thead>
                                     <tbody>
                                         {subscriptions.map(sub => (
-                                            <tr key={sub.id}>
+                                            <TableRow key={sub.id} detailsLink={`/subscriptions/${sub.id}`}>
                                                 <td>{sub.title}</td>
                                                 <td>{sub.description}</td>
                                                 <td>{sub.price}</td>
@@ -88,7 +94,7 @@ export default async function SubscriptionsListPage() {
                                                         </button>
                                                     </form>
                                                 </td>
-                                            </tr>
+                                            </TableRow>
                                         ))}
                                     </tbody>
                                 </table>
