@@ -5,14 +5,54 @@ import { revalidatePath } from "next/cache";
 import Stripe from 'stripe';
 import { redirect } from "next/navigation";
 import TableRow from "@/components/tableRow";
+import Search from "@/components/search";
 
-export default async function SubscriptionsListPage() {
+export default async function SubscriptionsListPage({
+    searchParams,
+  }: {
+    searchParams?: {
+      query?: string;
+    };
+  }) {
     const session = await auth();
     const stripe = new Stripe(process.env.STRIPE_TEST_KEY as string);
 
     const subscriptions = await prisma.subscription.findMany({
         where: {
-            clientId: session?.user.id
+            AND: [
+                {
+                    clientId: session?.user.id,
+                },
+                {
+                    OR: [
+                        {
+                            title: searchParams.query ? {
+                                contains: searchParams.query,
+                                mode: "insensitive",
+                            } : undefined
+                        },
+                        {
+                            description: searchParams.query ? {
+                                contains: searchParams.query,
+                                mode: "insensitive",
+                            } : undefined
+                        },
+                        {
+                            price: searchParams.query ? {
+                                contains: searchParams.query,
+                                mode: "insensitive",
+                            } : undefined
+                        },
+                        {
+                            currency: searchParams.query ? {
+                                contains: searchParams.query,
+                                mode: "insensitive",
+                            } : undefined
+                        },
+                        
+                    ]
+                }
+            ]
         },
         include: {
             customers: true,
@@ -49,13 +89,14 @@ export default async function SubscriptionsListPage() {
                     <div className="px-4 mx-auto max-w-screen-2xl lg:px-12">
                         <div className="relative overflow-hidden bg-white shadow-md dark:bg-gray-800 sm:rounded-lg">
                             <div className="flex flex-col px-4 py-3 space-y-3 lg:flex-row lg:items-center lg:justify-between lg:space-y-0 lg:space-x-4">
-                                <div className="flex flex-col flex-shrink-0 space-y-3 md:flex-row md:items-center lg:justify-end md:space-y-0 md:space-x-3">
+                                <div className="w-full flex flex-col flex-shrink-0 space-y-3 md:flex-row lg:justify-between md:space-y-0 md:space-x-3">
                                     <Link href="/subscriptions/new" className="flex items-center justify-center px-4 py-2 text-sm font-medium text-white rounded-lg bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
                                         <svg className="h-3.5 w-3.5 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                                             <path clipRule="evenodd" fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" />
                                         </svg>
                                         New subscription
                                     </Link>
+                                    <Search placeholder="Search..."></Search>
                                 </div>
                             </div>
                             <div className="overflow-x-auto">
@@ -72,7 +113,7 @@ export default async function SubscriptionsListPage() {
                                     </thead>
                                     <tbody>
                                         {subscriptions.map(sub => (
-                                            <TableRow key={sub.id} detailsLink={`/subscriptions/${sub.id}`}>
+                                            <tr key={sub.id} className="hover:bg-gray-700 transition duration-150 ease-in-out">
                                                 <td>{sub.title}</td>
                                                 <td>{sub.description}</td>
                                                 <td>{sub.price}</td>
@@ -94,7 +135,7 @@ export default async function SubscriptionsListPage() {
                                                         </button>
                                                     </form>
                                                 </td>
-                                            </TableRow>
+                                            </tr>
                                         ))}
                                     </tbody>
                                 </table>

@@ -1,10 +1,14 @@
 import { auth } from "@/helpers/auth";
 import prisma from "@/lib/prisma";
+import Stripe from 'stripe';
 
 async function get(id: string) {
     const subscription = await prisma.subscription.findUnique({
         where: {
             id: id
+        },
+        include: {
+            customers: true
         }
     });
 
@@ -13,8 +17,6 @@ async function get(id: string) {
 
 export default async function UpdateSubscriptionPage({ params }: { params: { id: string } }) {
     const session = await auth();
-    const currencies = ['eur', 'usd']
-
     const sub = await get(params.id);
 
     return (
@@ -25,6 +27,8 @@ export default async function UpdateSubscriptionPage({ params }: { params: { id:
                         <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
                             {sub.title}
                         </h1>
+                        <p>{sub.description}</p>
+                        <p>{sub.price} {sub.currency.toLocaleUpperCase()}</p>
                     </div>
                 </div>
             </div>

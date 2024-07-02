@@ -4,14 +4,47 @@ import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import TableRow from "@/components/tableRow";
+import Search from "@/components/search";
 
-export default async function CustomersListPage() {
+export default async function CustomersListPage({
+    searchParams,
+  }: {
+    searchParams?: {
+      query?: string;
+    };
+  }) {
     const session = await auth();
 
     const customers = await prisma.customer.findMany({
         where: {
-            clientId: session?.user.id
-        },
+            AND: [
+                {
+                    clientId: session?.user.id,
+                },
+                {
+                    OR: [
+                        {
+                            fullName: searchParams.query ? {
+                                contains: searchParams.query,
+                                mode: "insensitive",
+                            } : undefined
+                        },
+                        {
+                            email: searchParams.query ? {
+                                contains: searchParams.query,
+                                mode: "insensitive",
+                            } : undefined
+                        },
+                        {
+                            address: searchParams.query ? {
+                                contains: searchParams.query,
+                                mode: "insensitive",
+                            } : undefined
+                        }
+                        
+                    ]
+                }
+            ]        },
         include: {
             subscriptions: true
         }
@@ -43,13 +76,14 @@ export default async function CustomersListPage() {
                     <div className="px-4 mx-auto max-w-screen-2xl lg:px-12">
                         <div className="relative overflow-hidden bg-white shadow-md dark:bg-gray-800 sm:rounded-lg">
                             <div className="flex flex-col px-4 py-3 space-y-3 lg:flex-row lg:items-center lg:justify-between lg:space-y-0 lg:space-x-4">
-                                <div className="flex flex-col flex-shrink-0 space-y-3 md:flex-row md:items-center lg:justify-end md:space-y-0 md:space-x-3">
+                                <div className="w-full flex flex-col flex-shrink-0 space-y-3 md:flex-row lg:justify-between md:space-y-0 md:space-x-3">
                                     <Link href="/customers/new" className="flex items-center justify-center px-4 py-2 text-sm font-medium text-white rounded-lg bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
                                         <svg className="h-3.5 w-3.5 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                                             <path clipRule="evenodd" fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" />
                                         </svg>
                                         New customer
                                     </Link>
+                                    <Search placeholder="Search..."></Search>
                                 </div>
                             </div>
                             <div className="overflow-x-auto">
@@ -65,7 +99,7 @@ export default async function CustomersListPage() {
                                     </thead>
                                     <tbody>
                                         {customers.map(customer => (
-                                            <TableRow key={customer.id} detailsLink={`/customers/${customer.id}`}>
+                                            <tr key={customer.id} className="hover:bg-gray-700 transition duration-150 ease-in-out">
                                                 <td>{customer.fullName}</td>
                                                 <td>{customer.email}</td>
                                                 <td>{customer.address}</td>
@@ -85,7 +119,7 @@ export default async function CustomersListPage() {
                                                         </button>
                                                     </form>
                                                 </td>
-                                            </TableRow>
+                                            </tr>
                                         ))}
                                     </tbody>
                                 </table>
