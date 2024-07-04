@@ -24,6 +24,7 @@ model Client {
   customers     Customer[]
   sessions      Session[]
   subscriptions Subscription[]
+  products      Product[]
 }
 
 model Customer {
@@ -58,6 +59,21 @@ model Subscription {
   priceId     String
   client      Client?    @relation(fields: [clientId], references: [id])
   customers   Customer[] @relation("CustomerToSubscription")
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  clientId    String?
+  title       String
+  description String
+  price       String
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  productId   String
+  currency    String
+  priceId     String
+  taxCodeId   String
+  client      Client?  @relation(fields: [clientId], references: [id])
 }
 
 model Account {

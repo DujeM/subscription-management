@@ -2,9 +2,8 @@ import Link from "next/link";
 import { auth } from "@/helpers/auth";
 import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
-import TableRow from "@/components/tableRow";
 import Search from "@/components/search";
+import Stripe from 'stripe';
 
 export default async function CustomersListPage({
     searchParams,
@@ -22,29 +21,30 @@ export default async function CustomersListPage({
                     clientId: session?.user.id,
                 },
                 {
-                    OR: [
+                    OR: searchParams.query ? [
                         {
-                            fullName: searchParams.query ? {
+                            fullName: {
                                 contains: searchParams.query,
                                 mode: "insensitive",
-                            } : undefined
+                            }
                         },
                         {
-                            email: searchParams.query ? {
+                            email: {
                                 contains: searchParams.query,
                                 mode: "insensitive",
-                            } : undefined
+                            }
                         },
                         {
-                            address: searchParams.query ? {
+                            address: {
                                 contains: searchParams.query,
                                 mode: "insensitive",
-                            } : undefined
+                            }
                         }
                         
-                    ]
+                    ] : []
                 }
-            ]        },
+            ]        
+        },
         include: {
             subscriptions: true
         }
@@ -53,20 +53,18 @@ export default async function CustomersListPage({
     const deleteCustomer = async (formData: FormData) => {
         "use server"
         const customerId = formData.get("customerId") as string;
+        const stripeCustomerId = formData.get("stripeCustomerId") as string;
+        const scopeStripe = new Stripe(process.env.STRIPE_TEST_KEY as string);
 
         await prisma.customer.delete({
             where: {
                 id: customerId
             }
-        })
+        });
+
+        await scopeStripe.customers.del(stripeCustomerId, { stripeAccount: session.user.accountId });
 
         revalidatePath('/customers');
-    }
-
-    const redirectToCustomerDetauls = async (customerId: string) => {
-        "use server"
-
-        redirect(`/customers/${customerId}}`);
     }
 
     return (
@@ -112,6 +110,7 @@ export default async function CustomersListPage({
                                                     </Link>
                                                     <form action={deleteCustomer}>
                                                         <input type="text" name="customerId" id="customerId" defaultValue={customer.id} hidden/>
+                                                        <input type="text" name="stripeCustomerId" id="stripeCustomerId" defaultValue={customer.customerId} hidden/>
                                                         <button type="submit" className="cursor-pointer">
                                                             <svg className="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                                                                 <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 7h14m-9 3v8m4-8v8M10 3h4a1 1 0 0 1 1 1v3H9V4a1 1 0 0 1 1-1ZM6 7h12v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7Z" />
