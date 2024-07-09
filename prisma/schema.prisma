@@ -22,9 +22,10 @@ model Client {
   accountId     String         @default("")
   accounts      Account[]
   customers     Customer[]
+  invoices      Invoice[]
+  products      Product[]
   sessions      Session[]
   subscriptions Subscription[]
-  products      Product[]
 }
 
 model Customer {
@@ -42,6 +43,7 @@ model Customer {
   subscriptionId String
   accounts       Account[]
   client         Client?        @relation(fields: [clientId], references: [id])
+  invoices       Invoice[]
   sessions       Session[]
   subscriptions  Subscription[] @relation("CustomerToSubscription")
 }
@@ -59,6 +61,19 @@ model Subscription {
   priceId     String
   client      Client?    @relation(fields: [clientId], references: [id])
   customers   Customer[] @relation("CustomerToSubscription")
+}
+
+model Invoice {
+  id          String   @id @default(cuid())
+  clientId    String
+  customerId  String
+  description String
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  invoiceId   String
+  priceIds    String
+  client      Client   @relation(fields: [clientId], references: [id])
+  customer    Customer @relation(fields: [customerId], references: [id])
 }
 
 model Product {

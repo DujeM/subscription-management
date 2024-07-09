@@ -138,14 +138,21 @@ export async function updateCustomer(
       }
     }
 
-    await stripe.customers.update(currentCustomer.customerId, {
-      name: fullName,
-      email: email,
-    });
+    await stripe.customers.update(
+      currentCustomer.customerId,
+      {
+        name: fullName,
+        email: email,
+      },
+      { stripeAccount: session.user.accountId }
+    );
 
-    const subItems = await stripe.subscriptionItems.list({
-      subscription: currentCustomer.subscriptionId,
-    });
+    const subItems = await stripe.subscriptionItems.list(
+      {
+        subscription: currentCustomer.subscriptionId,
+      },
+      { stripeAccount: session.user.accountId }
+    );
 
     selectedSubscriptions.forEach(async (sub) => {
       if (!subItems.data.find((item) => item.price.product === sub.productId)) {
@@ -165,7 +172,9 @@ export async function updateCustomer(
           (sub) => sub.productId === item.price.product
         )
       ) {
-        await stripe.subscriptionItems.del(item.id);
+        await stripe.subscriptionItems.del(item.id, {
+          stripeAccount: session.user.accountId,
+        });
       }
     });
 
