@@ -77,6 +77,7 @@ export default async function ProductsListPage({
             <section className="p-6 min-h-screen size-full">
                 <div className="bg-gray-50 dark:bg-gray-900 py-3 sm:py-5">
                     <div className="px-4 mx-auto max-w-screen-2xl lg:px-12">
+                        <h2 className="text-4xl mb-4 font-bold">Products</h2>
                         <div className="relative overflow-hidden bg-white shadow-md dark:bg-gray-800 sm:rounded-lg">
                             <div className="flex flex-col px-4 py-3 space-y-3 lg:flex-row lg:items-center lg:justify-between lg:space-y-0 lg:space-x-4">
                                 <div className="w-full flex flex-col flex-shrink-0 space-y-3 md:flex-row lg:justify-between md:space-y-0 md:space-x-3">
