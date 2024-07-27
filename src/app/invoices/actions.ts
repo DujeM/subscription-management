@@ -3,6 +3,7 @@ import { auth } from "@/helpers/auth";
 import prisma from "@/lib/prisma";
 import Stripe from "stripe";
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 
 export async function createInvoice(formData: FormData) {
   "use server";
@@ -72,4 +73,32 @@ export async function createInvoice(formData: FormData) {
   }
 
   redirect("/invoices");
+}
+
+export async function deleteInvoice(formData: FormData) {
+  "use server";
+  const session = await auth();
+  const invoiceId = formData.get("invoiceId") as string;
+  const stripeInvoiceId = formData.get("stripeInvoiceId") as string;
+  const scopeStripe = new Stripe(process.env.STRIPE_TEST_KEY as string);
+
+  try {
+    await prisma.invoice.delete({
+      where: {
+        id: invoiceId,
+      },
+    });
+
+    await scopeStripe.products.update(
+      stripeInvoiceId,
+      {
+        active: false,
+      },
+      { stripeAccount: session.user.accountId }
+    );
+  } catch (error) {
+    return { error: error.message ? error.message : "Something went wrong!" };
+  }
+
+  revalidatePath("/invoices");
 }

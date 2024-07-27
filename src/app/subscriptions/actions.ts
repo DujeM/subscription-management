@@ -3,6 +3,7 @@
 import { auth } from "@/helpers/auth";
 import prisma from "@/lib/prisma";
 import { Subscription } from "@prisma/client";
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import Stripe from "stripe";
 
@@ -87,4 +88,32 @@ export async function updateSubscription(
   }
 
   redirect("/subscriptions");
+}
+
+export async function deleteSubscription(formData: FormData) {
+  "use server";
+  const session = await auth();
+  const subId = formData.get("subId") as string;
+  const productId = formData.get("productId") as string;
+  const scopeStripe = new Stripe(process.env.STRIPE_TEST_KEY as string);
+
+  try {
+    await prisma.subscription.delete({
+      where: {
+        id: subId,
+      },
+    });
+
+    await scopeStripe.products.update(
+      productId,
+      {
+        active: false,
+      },
+      { stripeAccount: session.user.accountId }
+    );
+  } catch (error) {
+    return { error: error.message ? error.message : "Something went wrong!" };
+  }
+
+  revalidatePath("/subscriptions");
 }

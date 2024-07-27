@@ -17,9 +17,7 @@ async function get(id: string) {
 
 export default async function UpdateSubscriptionPage({ params }: { params: { id: string } }) {
     const session = await auth();
-
     const customer = await get(params.id);
-
     const subscriptions = await prisma.subscription.findMany({
         where: {
             clientId: session?.user.id

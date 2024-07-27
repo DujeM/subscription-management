@@ -7,6 +7,7 @@ import EmailVerifyTemplate from "@/components/emailVerifyTemplate";
 import { Resend } from "resend";
 import Stripe from "stripe";
 import { Customer } from "@prisma/client";
+import { revalidatePath } from "next/cache";
 
 export async function createCustomer(formData: FormData) {
   "use server";
@@ -18,10 +19,11 @@ export async function createCustomer(formData: FormData) {
   const subscription = formData.get("multiselect") as string;
   const resend = new Resend(process.env.RESEND_KEY);
   const stripe = new Stripe(process.env.STRIPE_TEST_KEY as string);
-  const selectedSubscriptions = subscription.split(",");
+  let newStripeSubscription: Stripe.Response<Stripe.Subscription>;
+  const selectedSubscriptions = subscription ? subscription.split(",") : [];
   const subscriptions = await prisma.subscription.findMany({
     where: {
-      clientId: session?.user.id,
+      clientId: session.user.id,
     },
   });
 
@@ -41,25 +43,27 @@ export async function createCustomer(formData: FormData) {
         name: fullName,
         email: email,
         metadata: {
-          clientId: session?.user.id,
+          clientId: session.user.id,
         },
       },
       { stripeAccount: session.user.accountId }
     );
 
-    const newStripeSubscription = await stripe.subscriptions.create(
-      {
-        customer: newStripeCustomer.id,
-        collection_method: "send_invoice",
-        days_until_due: 30,
-        items: subscriptions
-          .filter((s) => selectedSubscriptions.find((sub) => sub === s.id))
-          .map((s) => {
-            return { price: s.priceId };
-          }),
-      },
-      { stripeAccount: session.user.accountId }
-    );
+    if (subscription) {
+      newStripeSubscription = await stripe.subscriptions.create(
+        {
+          customer: newStripeCustomer.id,
+          collection_method: "send_invoice",
+          days_until_due: 30,
+          items: subscriptions
+            .filter((s) => selectedSubscriptions.find((sub) => sub === s.id))
+            .map((s) => {
+              return { price: s.priceId };
+            }),
+        },
+        { stripeAccount: session.user.accountId }
+      );
+    }
 
     const newCustomer = await prisma.customer.create({
       data: {
@@ -69,15 +73,17 @@ export async function createCustomer(formData: FormData) {
         phone: phone,
         emailConfirmed: false,
         emailToken: randomUUID(),
-        clientId: session?.user.id,
+        clientId: session.user.id,
         customerId: newStripeCustomer.id,
-        subscriptionId: newStripeSubscription.id,
+        subscriptionId: subscription ? newStripeSubscription.id : "",
         subscriptions: {
-          connect: selectedSubscriptions.map((s) => {
-            return {
-              id: s,
-            };
-          }),
+          connect: subscription
+            ? selectedSubscriptions.map((s) => {
+                return {
+                  id: s,
+                };
+              })
+            : [],
         },
       },
       include: {
@@ -116,14 +122,18 @@ export async function updateCustomer(
   const subscription = formData.get("multiselect") as string;
   const session = await auth();
   const stripe = new Stripe(process.env.STRIPE_TEST_KEY as string);
+  let subItems: Stripe.ApiList<Stripe.SubscriptionItem>;
+  let newStripeSubscription: Stripe.Response<Stripe.Subscription>;
   const subscriptions = await prisma.subscription.findMany({
     where: {
       clientId: session?.user.id,
     },
   });
   const selectedSubscriptions = subscription
-    .split(",")
-    .map((s) => subscriptions.find((sub) => sub.id === s));
+    ? subscription
+        .split(",")
+        .map((s) => subscriptions.find((sub) => sub.id === s))
+    : [];
 
   try {
     if (currentCustomer.email !== email) {
@@ -147,36 +157,58 @@ export async function updateCustomer(
       { stripeAccount: session.user.accountId }
     );
 
-    const subItems = await stripe.subscriptionItems.list(
-      {
-        subscription: currentCustomer.subscriptionId,
-      },
-      { stripeAccount: session.user.accountId }
-    );
+    if (currentCustomer.subscriptionId) {
+      subItems = await stripe.subscriptionItems.list(
+        {
+          subscription: currentCustomer.subscriptionId,
+        },
+        { stripeAccount: session.user.accountId }
+      );
+    }
 
-    selectedSubscriptions.forEach(async (sub) => {
-      if (!subItems.data.find((item) => item.price.product === sub.productId)) {
-        await stripe.subscriptionItems.create(
+    if (selectedSubscriptions.length) {
+      if (subItems) {
+        selectedSubscriptions.forEach(async (sub) => {
+          if (
+            !subItems.data.find((item) => item.price.product === sub.productId)
+          ) {
+            await stripe.subscriptionItems.create(
+              {
+                subscription: currentCustomer.subscriptionId,
+                price: sub.priceId,
+              },
+              { stripeAccount: session.user.accountId }
+            );
+          }
+        });
+      } else {
+        newStripeSubscription = await stripe.subscriptions.create(
           {
-            subscription: currentCustomer.subscriptionId,
-            price: sub.priceId,
+            customer: currentCustomer.customerId,
+            collection_method: "send_invoice",
+            days_until_due: 30,
+            items: selectedSubscriptions.map((s) => {
+              return { price: s.priceId };
+            }),
           },
           { stripeAccount: session.user.accountId }
         );
       }
-    });
+    }
 
-    subItems.data.forEach(async (item) => {
-      if (
-        !selectedSubscriptions.find(
-          (sub) => sub.productId === item.price.product
-        )
-      ) {
-        await stripe.subscriptionItems.del(item.id, {
-          stripeAccount: session.user.accountId,
-        });
-      }
-    });
+    if (subItems && subItems.data.length) {
+      subItems.data.forEach(async (item) => {
+        if (
+          !selectedSubscriptions.find(
+            (sub) => sub.productId === item.price.product
+          )
+        ) {
+          await stripe.subscriptionItems.del(item.id, {
+            stripeAccount: session.user.accountId,
+          });
+        }
+      });
+    }
 
     await prisma.customer.update({
       where: {
@@ -189,12 +221,17 @@ export async function updateCustomer(
         phone: phone,
         emailConfirmed: false,
         clientId: session?.user.id,
+        subscriptionId: newStripeSubscription
+          ? newStripeSubscription.id
+          : currentCustomer.subscriptionId,
         subscriptions: {
-          set: selectedSubscriptions.map((s) => {
-            return {
-              id: s.id,
-            };
-          }),
+          set: subscription
+            ? selectedSubscriptions.map((s) => {
+                return {
+                  id: s.id,
+                };
+              })
+            : [],
         },
       },
     });
@@ -203,4 +240,28 @@ export async function updateCustomer(
   }
 
   redirect("/customers");
+}
+
+export async function deleteCustomer(formData: FormData) {
+  "use server";
+  const session = await auth();
+  const customerId = formData.get("customerId") as string;
+  const stripeCustomerId = formData.get("stripeCustomerId") as string;
+  const scopeStripe = new Stripe(process.env.STRIPE_TEST_KEY as string);
+
+  try {
+    await prisma.customer.delete({
+      where: {
+        id: customerId,
+      },
+    });
+
+    await scopeStripe.customers.del(stripeCustomerId, {
+      stripeAccount: session.user.accountId,
+    });
+  } catch (error) {
+    return { error: error.message ? error.message : "Something went wrong!" };
+  }
+
+  revalidatePath("/customers");
 }

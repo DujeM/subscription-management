@@ -4,6 +4,8 @@ import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import Stripe from 'stripe';
 import Search from "@/components/search";
+import { deleteInvoice } from "./actions";
+import DeleteAction from "@/components/deleteAction";
 
 export default async function InvoicesListPage({
     searchParams,
@@ -13,6 +15,7 @@ export default async function InvoicesListPage({
     };
   }) {
     const session = await auth();
+    const stripe = new Stripe(process.env.STRIPE_TEST_KEY as string);
 
     const invoices = await prisma.invoice.findMany({
         where: {
@@ -38,23 +41,11 @@ export default async function InvoicesListPage({
         }
     });
 
-    const deleteInvoice = async (formData: FormData) => {
-        "use server"
-        const invoiceId = formData.get("invoiceId") as string;
-        const stripeInvoiceId = formData.get("stripeInvoiceId") as string;
-        const scopeStripe = new Stripe(process.env.STRIPE_TEST_KEY as string);
+    const stripeInvoices = await stripe.invoices.list({ stripeAccount: session.user.accountId });
 
-        await prisma.invoice.delete({
-            where: {
-                id: invoiceId
-            }
-        });
-
-        await scopeStripe.products.update(stripeInvoiceId, {
-          active: false,
-        }, { stripeAccount: session.user.accountId });
-
-        revalidatePath('/invoices');
+    const getInvoiceStatus = async (invoiceId: string) => {
+        const invoice = stripeInvoices.data.find(i => i.id === invoiceId)
+        return invoice ? invoice.status : 'N/A';
     }
 
     return (
@@ -81,6 +72,7 @@ export default async function InvoicesListPage({
                                         <tr>
                                             <th>Description</th>
                                             <th>Customers</th>
+                                            <th>Status</th>
                                             <th>Actions</th>
                                         </tr>
                                     </thead>
@@ -89,21 +81,14 @@ export default async function InvoicesListPage({
                                             <tr key={invoice.id} className="hover:bg-gray-700 transition duration-150 ease-in-out">
                                                 <td>{invoice.description}</td>
                                                 <td>{invoice.customer.email}</td>
+                                                <td>{getInvoiceStatus(invoice.invoiceId)}</td>
                                                 <td className="flex">
                                                     <Link href={`/invoices/edit/${invoice.id}`} className="cursor-pointer">
                                                         <svg className="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                                                             <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z" />
                                                         </svg>
                                                     </Link>
-                                                    <form action={deleteInvoice}>
-                                                        <input type="text" name="invoiceId" id="invoiceId" defaultValue={invoice.id} hidden/>
-                                                        <input type="text" name="stripeInvoiceId" id="stripeInvoiceId" defaultValue={invoice.invoiceId} hidden/>
-                                                        <button type="submit" className="cursor-pointer">
-                                                            <svg className="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                                                                <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 7h14m-9 3v8m4-8v8M10 3h4a1 1 0 0 1 1 1v3H9V4a1 1 0 0 1 1-1ZM6 7h12v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7Z" />
-                                                            </svg>
-                                                        </button>
-                                                    </form>
+                                                    <DeleteAction deleteFn={deleteInvoice} itemId={invoice.id} stripeItemId={invoice.invoiceId} itemIdName="invoiceId" stripeIdName="stripeInvoiceId" />
                                                 </td>
                                             </tr>
                                         ))}
