@@ -1,5 +1,6 @@
 import { auth } from "@/helpers/auth";
 import prisma from "@/lib/prisma";
+import { redirect } from "next/navigation";
 import Stripe from 'stripe';
 
 async function get(id: string) {
@@ -18,6 +19,10 @@ async function get(id: string) {
 export default async function UpdateSubscriptionPage({ params }: { params: { id: string } }) {
     const session = await auth();
     const sub = await get(params.id);
+
+    if (session === null) {
+        redirect("auth/login");
+    }
 
     return (
         <section className="w-full bg-gray-50 dark:bg-gray-900">

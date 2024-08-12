@@ -1,11 +1,12 @@
 import Link from "next/link";
 import { auth } from "@/helpers/auth";
 import prisma from "@/lib/prisma";
-import { revalidatePath } from "next/cache";
 import Search from "@/components/search";
 import Stripe from 'stripe';
 import { deleteCustomer } from "./actions";
 import DeleteAction from "@/components/deleteAction";
+import { format } from "date-fns";
+import { redirect } from "next/navigation";
 
 export default async function CustomersListPage({
     searchParams,
@@ -16,6 +17,10 @@ export default async function CustomersListPage({
   }) {
     const session = await auth();
     const stripe = new Stripe(process.env.STRIPE_TEST_KEY as string);
+
+    if (session === null) {
+        redirect("auth/login");
+    }
 
     const customers = await prisma.customer.findMany({
         where: {
@@ -57,7 +62,17 @@ export default async function CustomersListPage({
 
     const getSubscriptionStatus = async (subId: string) => {
         const sub = stripeSubscriptions.data.find(i => i.id === subId)
-        return sub ? sub.status : 'N/A';
+        return sub ? sub.status : '-';
+    }
+
+    const getSubscriptionNextPayment = async (subId: string) => {
+        const sub = stripeSubscriptions.data.find(i => i.id === subId)
+
+        if (!sub) {
+            return '-';
+        }
+
+        return format(new Date(sub.current_period_end * 1000), "dd/MM/yyyy HH:mm");
     }
 
     return (
@@ -87,6 +102,7 @@ export default async function CustomersListPage({
                                             <th>Address</th>
                                             <th>Subscriptions</th>
                                             <th>Subscription status</th>
+                                            <th>Next subscription invoice</th>
                                             <th>Actions</th>
                                         </tr>
                                     </thead>
@@ -98,6 +114,7 @@ export default async function CustomersListPage({
                                                 <td>{customer.address}</td>
                                                 <td>{customer.subscriptions.length ? customer.subscriptions.map(s => s.title).join(', ') : 'Not assigned'}</td>
                                                 <td>{getSubscriptionStatus(customer.subscriptionId)}</td>
+                                                <td>{getSubscriptionNextPayment(customer.subscriptionId)}</td>
                                                 <td className="flex">
                                                     <Link href={`/customers/edit/${customer.id}`} className="cursor-pointer">
                                                         <svg className="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">

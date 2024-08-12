@@ -6,6 +6,7 @@ import Stripe from 'stripe';
 import Search from "@/components/search";
 import { deleteProduct } from "./actions";
 import DeleteAction from "@/components/deleteAction";
+import { redirect } from "next/navigation";
 
 export default async function ProductsListPage({
     searchParams,
@@ -15,6 +16,10 @@ export default async function ProductsListPage({
     };
   }) {
     const session = await auth();
+
+    if (session === null) {
+        redirect("auth/login");
+    }
 
     const products = await prisma.product.findMany({
         where: {

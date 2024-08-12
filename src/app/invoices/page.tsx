@@ -6,6 +6,7 @@ import Stripe from 'stripe';
 import Search from "@/components/search";
 import { deleteInvoice } from "./actions";
 import DeleteAction from "@/components/deleteAction";
+import { redirect } from "next/navigation";
 
 export default async function InvoicesListPage({
     searchParams,
@@ -14,8 +15,12 @@ export default async function InvoicesListPage({
       query?: string;
     };
   }) {
-    const session = await auth();
     const stripe = new Stripe(process.env.STRIPE_TEST_KEY as string);
+    const session = await auth();
+
+    if (session === null) {
+        redirect('auth/login')
+    }
 
     const invoices = await prisma.invoice.findMany({
         where: {

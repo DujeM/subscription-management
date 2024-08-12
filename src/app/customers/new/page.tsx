@@ -3,9 +3,14 @@
 import { auth } from "@/helpers/auth";
 import prisma from "@/lib/prisma";
 import Form from "./form";
+import { redirect } from "next/navigation";
 
 export default async function NewCustomerPage() {
     const session = await auth();
+
+    if (session === null) {
+        redirect("auth/login");
+    }
 
     const subscriptions = await prisma.subscription.findMany({
         where: {

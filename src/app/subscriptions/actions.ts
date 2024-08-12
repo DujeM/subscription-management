@@ -10,6 +10,11 @@ import Stripe from "stripe";
 export async function createSubscription(formData: FormData) {
   "use server";
   const session = await auth();
+
+  if (session === null) {
+    redirect("auth/login");
+  }
+
   const title = formData.get("title") as string;
   const description = formData.get("description") as string;
   const currency = formData.get("currency") as string;
@@ -59,6 +64,11 @@ export async function updateSubscription(
 ) {
   "use server";
   const session = await auth();
+
+  if (session === null) {
+    redirect("auth/login");
+  }
+
   const scopeStripe = new Stripe(process.env.STRIPE_TEST_KEY as string);
   const title = formData.get("title") as string;
   const description = formData.get("description") as string;
@@ -93,6 +103,11 @@ export async function updateSubscription(
 export async function deleteSubscription(formData: FormData) {
   "use server";
   const session = await auth();
+
+  if (session === null) {
+    redirect("auth/login");
+  }
+
   const subId = formData.get("subId") as string;
   const productId = formData.get("productId") as string;
   const scopeStripe = new Stripe(process.env.STRIPE_TEST_KEY as string);

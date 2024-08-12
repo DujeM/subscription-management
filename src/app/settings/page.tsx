@@ -15,6 +15,10 @@ export default async function SettingsPage({
     const session = await auth();
     let toastType = '', toastMessage = '';
 
+    if (session === null) {
+        redirect("auth/login");
+    }
+
     const getStripeAccountLinks = async () => {
         "use server"
         const stripe = new Stripe(process.env.STRIPE_TEST_KEY as string);
@@ -57,13 +61,21 @@ export default async function SettingsPage({
                         <ul>
                             <li>
                                 <form action={getStripeAccountLinks}>
-                                    <button type="submit" className="flex items-center justify-between cursor-pointer p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
-                                        <span className="flex-1 ms-3 whitespace-nowrap">Create your Stripe account</span>
+                                    <button type="submit" className="w-full flex items-center justify-between cursor-pointer p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
+                                        <span className="ms-3 whitespace-nowrap">Create your Stripe account</span>
                                         <svg className="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                                             <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m10 16 4-4-4-4"/>
                                         </svg>
                                     </button>
                                 </form>
+                            </li>
+                            <li>
+                                <Link href="https://dashboard.stripe.com/" target="_blank" className="flex items-center justify-between cursor-pointer p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
+                                    <span className="flex-1 ms-3 whitespace-nowrap">Go to your Stripe dashboard</span>
+                                    <svg className="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                                        <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m10 16 4-4-4-4"/>
+                                    </svg>
+                                </Link>
                             </li>
                         </ul>
                     </div>

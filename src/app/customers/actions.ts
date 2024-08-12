@@ -12,6 +12,11 @@ import { revalidatePath } from "next/cache";
 export async function createCustomer(formData: FormData) {
   "use server";
   const session = await auth();
+
+  if (session === null) {
+    redirect("auth/login");
+  }
+
   const fullName = formData.get("fullName") as string;
   const email = formData.get("email") as string;
   const address = formData.get("address") as string;
@@ -120,8 +125,13 @@ export async function updateCustomer(
   const address = formData.get("address") as string;
   const phone = formData.get("phone") as string;
   const subscription = formData.get("multiselect") as string;
-  const session = await auth();
   const stripe = new Stripe(process.env.STRIPE_TEST_KEY as string);
+  const session = await auth();
+
+  if (session === null) {
+    redirect("auth/login");
+  }
+
   let subItems: Stripe.ApiList<Stripe.SubscriptionItem>;
   let newStripeSubscription: Stripe.Response<Stripe.Subscription>;
   const subscriptions = await prisma.subscription.findMany({
@@ -245,6 +255,11 @@ export async function updateCustomer(
 export async function deleteCustomer(formData: FormData) {
   "use server";
   const session = await auth();
+
+  if (session === null) {
+    redirect("auth/login");
+  }
+
   const customerId = formData.get("customerId") as string;
   const stripeCustomerId = formData.get("stripeCustomerId") as string;
   const scopeStripe = new Stripe(process.env.STRIPE_TEST_KEY as string);

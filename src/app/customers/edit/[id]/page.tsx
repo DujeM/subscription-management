@@ -1,6 +1,7 @@
 import { auth } from "@/helpers/auth";
 import prisma from "@/lib/prisma";
 import Form from "./form";
+import { redirect } from "next/navigation";
 
 async function get(id: string) {
     const customer = await prisma.customer.findUnique({
@@ -17,6 +18,11 @@ async function get(id: string) {
 
 export default async function UpdateSubscriptionPage({ params }: { params: { id: string } }) {
     const session = await auth();
+
+    if (session === null) {
+        redirect("auth/login");
+    }
+    
     const customer = await get(params.id);
     const subscriptions = await prisma.subscription.findMany({
         where: {

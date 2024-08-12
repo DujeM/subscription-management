@@ -9,6 +9,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import prisma from "@/lib/prisma";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { compare } from "bcrypt";
+import { redirect } from "next/navigation";
 
 export const config = {
   providers: [
@@ -51,14 +52,20 @@ export const config = {
   },
   secret: process.env.SECRET,
   callbacks: {
-    session: ({ session, token, user }) => ({
-      ...session,
-      user: {
-        ...session.user,
-        id: token.sub,
-        accountId: token.accountId as string,
-      },
-    }),
+    session({ session, token, user }) {
+      if (session === null) {
+        redirect("");
+      }
+
+      return {
+        ...session,
+        user: {
+          ...session.user,
+          id: token.sub,
+          accountId: token.accountId as string,
+        },
+      };
+    },
     async jwt({ token, user }) {
       const client = await prisma.client.findUnique({
         where: {

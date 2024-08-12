@@ -18,7 +18,7 @@ export default function Form() {
         });        
 
         if (!response?.error) {
-            router.push('/');
+            router.push('/invoices');
         }
     }
 

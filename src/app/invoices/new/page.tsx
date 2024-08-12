@@ -1,9 +1,14 @@
 import { auth } from "@/helpers/auth";
 import prisma from "@/lib/prisma";
 import { Form } from "./form";
+import { redirect } from "next/navigation";
 
 export default async function NewInvoicePage() {
     const session = await auth();
+
+    if (session === null) {
+        redirect("auth/login");
+    }
 
     const customers = await prisma.customer.findMany({
         where: {

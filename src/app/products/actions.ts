@@ -9,6 +9,11 @@ import { revalidatePath } from "next/cache";
 export async function createProduct(formData: FormData) {
   "use server";
   const session = await auth();
+
+  if (session === null) {
+    redirect("auth/login");
+  }
+
   const title = formData.get("title") as string;
   const description = formData.get("description") as string;
   const currency = formData.get("currency") as string;
@@ -53,6 +58,11 @@ export async function createProduct(formData: FormData) {
 export async function updateProduct(formData: FormData, product: Product) {
   "use server";
   const session = await auth();
+
+  if (session === null) {
+    redirect("auth/login");
+  }
+
   const scopeStripe = new Stripe(process.env.STRIPE_TEST_KEY as string);
   const title = formData.get("title") as string;
   const description = formData.get("description") as string;
@@ -87,6 +97,11 @@ export async function updateProduct(formData: FormData, product: Product) {
 export async function deleteProduct(formData: FormData) {
   "use server";
   const session = await auth();
+
+  if (session === null) {
+    redirect("auth/login");
+  }
+
   const productId = formData.get("productId") as string;
   const stripeProductId = formData.get("stripeProductId") as string;
   const scopeStripe = new Stripe(process.env.STRIPE_TEST_KEY as string);

@@ -9,6 +9,11 @@ export async function createInvoice(formData: FormData) {
   "use server";
   const stripe = new Stripe(process.env.STRIPE_TEST_KEY as string);
   const session = await auth();
+
+  if (session === null) {
+    redirect("auth/login");
+  }
+
   const description = formData.get("description") as string;
   const price = formData.get("price") as string;
   const stripeCustomerId = formData.get("customer") as string;
@@ -78,6 +83,11 @@ export async function createInvoice(formData: FormData) {
 export async function deleteInvoice(formData: FormData) {
   "use server";
   const session = await auth();
+
+  if (session === null) {
+    redirect("auth/login");
+  }
+
   const invoiceId = formData.get("invoiceId") as string;
   const stripeInvoiceId = formData.get("stripeInvoiceId") as string;
   const scopeStripe = new Stripe(process.env.STRIPE_TEST_KEY as string);

@@ -4,6 +4,7 @@ import prisma from "@/lib/prisma";
 import Search from "@/components/search";
 import DeleteAction from "@/components/deleteAction";
 import { deleteSubscription } from "./actions";
+import { redirect } from "next/navigation";
 
 export default async function SubscriptionsListPage({
     searchParams,
@@ -13,6 +14,10 @@ export default async function SubscriptionsListPage({
     };
   }) {
     const session = await auth();
+
+    if (session === null) {
+        redirect("auth/login");
+    }
 
     const subscriptions = await prisma.subscription.findMany({
         where: {

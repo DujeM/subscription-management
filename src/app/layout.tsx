@@ -5,6 +5,7 @@ import SessionProvider from "../providers/sessionProvider";
 import Sidebar from "@/components/sidebar";
 import { auth } from "@/helpers/auth";
 import { Toaster } from "react-hot-toast"
+import { redirect } from "next/navigation";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -19,13 +20,12 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const session = await auth();
-
   return (
     <html lang="en">
       <body className={inter.className}>
       {session && <main className="flex min-h-screen items-center bg-slate-900">
-          <Sidebar/>
           <SessionProvider session={session}>
+            <Sidebar/>
             {children}
             <Toaster position="top-right" />
             </SessionProvider>
