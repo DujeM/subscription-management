@@ -13,6 +13,7 @@ export default async function InvoicesListPage({
   }: {
     searchParams?: {
       query?: string;
+      login?: string;
     };
   }) {
     const stripe = new Stripe(process.env.STRIPE_TEST_KEY as string);

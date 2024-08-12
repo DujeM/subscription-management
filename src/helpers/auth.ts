@@ -9,7 +9,6 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import prisma from "@/lib/prisma";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { compare } from "bcrypt";
-import { redirect } from "next/navigation";
 
 export const config = {
   providers: [
@@ -53,10 +52,6 @@ export const config = {
   secret: process.env.SECRET,
   callbacks: {
     session({ session, token, user }) {
-      if (session === null) {
-        redirect("");
-      }
-
       return {
         ...session,
         user: {

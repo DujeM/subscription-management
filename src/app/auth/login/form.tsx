@@ -18,7 +18,7 @@ export default function Form() {
         });        
 
         if (!response?.error) {
-            router.push('/invoices');
+            router.push('/invoices?login=true');
         }
     }
 
