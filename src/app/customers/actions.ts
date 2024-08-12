@@ -98,7 +98,7 @@ export async function createCustomer(formData: FormData) {
     });
 
     await resend.emails.send({
-      from: "subscription@excode.hr",
+      from: "subscribx@excode.hr",
       to: [email],
       subject: "Please confirm your email",
       react: EmailVerifyTemplate({

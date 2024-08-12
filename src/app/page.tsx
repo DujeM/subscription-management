@@ -26,14 +26,14 @@ export default async function Home() {
 
     try {
       await resend.emails.send({
-        from: "subscription@excode.hr",
+        from: "subscribx@excode.hr",
         to: [email],
         subject: "Subscribx early access",
         react: EmailDemoSuccessTemplate(),
       });
   
       await resend.emails.send({
-        from: "subscription@excode.hr",
+        from: "subscribx@excode.hr",
         to: ["duje@excode.hr"],
         subject: "New Subscribx demo request",
         react: emailDemoClient({clientEmail: email}),
@@ -91,7 +91,7 @@ export default async function Home() {
         <figure className="bg-white p-5 h-60">
           <Image src={'/svg/checkout.svg'} alt="Checkout" width={384} height={226} className="p-5 h-64" />
         </figure>
-        <div className="card-body p-5 bg-primary rounded-es-2xl rounded-ee-2xl h-36">
+        <div className="card-body p-2 gap-0 bg-primary rounded-es-2xl rounded-ee-2xl h-36 sm:p-5 sm:gap-2">
           <h2 className="card-title">Invoices and integrated checkout</h2>
           <p>Integrated Stripe checkout, with invoices sent directly to your customers</p>
         </div>
@@ -100,7 +100,7 @@ export default async function Home() {
         <figure className="bg-white p-5 h-60">
           <Image src={'/svg/subscriptions.svg'} alt="Subscriptions" width={384} height={226} className="p-5 h-64" />
         </figure>
-        <div className="card-body p-5 bg-primary rounded-es-2xl rounded-ee-2xl h-36">
+        <div className="card-body p-2 gap-0 bg-primary rounded-es-2xl rounded-ee-2xl h-36 sm:p-5 sm:gap-2">
           <h2 className="card-title">Subscriptions and customers</h2>
           <p>Easy setup, manage customers and their subscriptions</p>
         </div>
@@ -109,7 +109,7 @@ export default async function Home() {
         <figure className="bg-white p-5 h-60">
           <Image src={'/svg/products.svg'} alt="Products" width={384} height={226} className="p-5 h-64" />
         </figure>
-        <div className="card-body p-5 bg-primary rounded-es-2xl rounded-ee-2xl h-36">
+        <div className="card-body p-2 gap-0 bg-primary rounded-es-2xl rounded-ee-2xl h-36 sm:p-5 sm:gap-2">
           <h2 className="card-title">Product management</h2>
           <p>Create and manage your products and services</p>
         </div>
