@@ -6,6 +6,7 @@ import { FormEvent } from "react";
 export default function Form() {
     const router = useRouter();
     const login = async (e: FormEvent<HTMLFormElement>) => {
+        console.log(e)
         e.preventDefault();
         const formData = new FormData(e.currentTarget);
         const email = formData.get("email");
@@ -16,7 +17,7 @@ export default function Form() {
             password: password,
             redirect: false
         });        
-
+        console.log(response)
         if (!response?.error) {
             router.push('/invoices?login=true');
         }

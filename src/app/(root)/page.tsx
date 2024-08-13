@@ -55,7 +55,7 @@ export default async function Home() {
         }
       ],
       mode: 'payment',
-      success_url: 'http://localhost:3000/auth/success',
+      success_url: 'http://localhost:3000/success',
       automatic_tax: {enabled: true},
     });
 
@@ -69,7 +69,7 @@ export default async function Home() {
         <a className="btn btn-ghost text-xl">Subscribx</a>
       </div>
       <div className="navbar-end">
-        <a href="/auth/login" className="btn btn-primary text-white">Sign in</a>
+        <a href="/login" className="btn btn-primary text-white">Sign in</a>
       </div>
     </div>
     <div className="hero my-20">
@@ -182,7 +182,7 @@ export default async function Home() {
     </div>
     <footer className="footer footer-center bg-base-300 text-base-content p-4">
       <aside>
-        <p>Subscribx © {new Date().getFullYear()} - All right reserved by Excode</p>
+        <p>Subscribx © {new Date().getFullYear()} - All right reserved by Excode.hr</p>
       </aside>
     </footer>
     </>

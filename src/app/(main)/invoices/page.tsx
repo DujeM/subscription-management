@@ -23,6 +23,10 @@ export default async function InvoicesListPage({
         redirect('auth/login')
     }
 
+    // if (searchParams.login === 'true') {
+    //     revalidatePath('/invoices')
+    // }
+
     const invoices = await prisma.invoice.findMany({
         where: {
             AND: [

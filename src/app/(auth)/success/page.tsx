@@ -13,7 +13,7 @@ export default async function PaymentSuccessPage() {
                             </h1>
                             <p className="text-white text-center">Click below to create your account and start using the application, if you have any additional questions or need help setting up your account contact us directly at <a href="mailto:duje@excode.hr">duje@excode.hr</a></p>
                             <button className="btn btn-primary text-white">
-                                <Link href="/auth/client-register">Create an account</Link>
+                                <Link href="/client-register">Create an account</Link>
                             </button>
                         </div>
                     </div>

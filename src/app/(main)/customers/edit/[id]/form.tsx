@@ -1,6 +1,6 @@
 "use client"
 
-import { updateCustomer } from "@/app/customers/actions";
+import { updateCustomer } from "@/app/(main)/customers/actions";
 import Multiselect from "@/components/multiselect";
 import toast from "react-hot-toast";
 
