@@ -16,7 +16,7 @@ export default async function InvoicesListPage({
       login?: string;
     };
   }) {
-    const stripe = new Stripe(process.env.STRIPE_TEST_KEY as string);
+    const stripe = new Stripe(process.env.STRIPE_PUBLIC_KEY as string);
     const session = await auth();
 
     if (session === null) {

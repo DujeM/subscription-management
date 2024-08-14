@@ -45,7 +45,7 @@ export default async function Home() {
 
   const handleStripeCheckout = async (FormData: FormData) => {
     "use server"
-    const stripe = new Stripe(process.env.STRIPE_TEST_KEY as string);
+    const stripe = new Stripe(process.env.STRIPE_PUBLIC_KEY as string);
     
     const checkout = await stripe.checkout.sessions.create({
       line_items: [

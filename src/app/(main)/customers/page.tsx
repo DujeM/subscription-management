@@ -16,7 +16,7 @@ export default async function CustomersListPage({
     };
   }) {
     const session = await auth();
-    const stripe = new Stripe(process.env.STRIPE_TEST_KEY as string);
+    const stripe = new Stripe(process.env.STRIPE_PUBLIC_KEY as string);
 
     if (session === null) {
         redirect("auth/login");

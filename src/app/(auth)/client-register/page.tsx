@@ -17,7 +17,7 @@ export default async function RegisterPage() {
         const email = formData.get("email") as string;
         const password = formData.get("password") as string;
         const confirmPassword = formData.get("confirm-password")  as string;
-        const stripe = new Stripe(process.env.STRIPE_TEST_KEY as string);
+        const stripe = new Stripe(process.env.STRIPE_PUBLIC_KEY as string);
 
         if (password !== confirmPassword) {
             return null;

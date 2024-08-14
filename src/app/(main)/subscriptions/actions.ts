@@ -19,7 +19,7 @@ export async function createSubscription(formData: FormData) {
   const description = formData.get("description") as string;
   const currency = formData.get("currency") as string;
   const price = formData.get("price") as string;
-  const stripe = new Stripe(process.env.STRIPE_TEST_KEY as string);
+  const stripe = new Stripe(process.env.STRIPE_PUBLIC_KEY as string);
 
   try {
     const newStripeProduct = await stripe.products.create(
@@ -69,7 +69,7 @@ export async function updateSubscription(
     redirect("auth/login");
   }
 
-  const scopeStripe = new Stripe(process.env.STRIPE_TEST_KEY as string);
+  const scopeStripe = new Stripe(process.env.STRIPE_PUBLIC_KEY as string);
   const title = formData.get("title") as string;
   const description = formData.get("description") as string;
 
@@ -110,7 +110,7 @@ export async function deleteSubscription(formData: FormData) {
 
   const subId = formData.get("subId") as string;
   const productId = formData.get("productId") as string;
-  const scopeStripe = new Stripe(process.env.STRIPE_TEST_KEY as string);
+  const scopeStripe = new Stripe(process.env.STRIPE_PUBLIC_KEY as string);
 
   try {
     await prisma.subscription.delete({

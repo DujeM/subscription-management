@@ -18,7 +18,7 @@ export async function createProduct(formData: FormData) {
   const description = formData.get("description") as string;
   const currency = formData.get("currency") as string;
   const price = formData.get("price") as string;
-  const stripe = new Stripe(process.env.STRIPE_TEST_KEY as string);
+  const stripe = new Stripe(process.env.STRIPE_PUBLIC_KEY as string);
 
   try {
     const newStripeProduct = await stripe.products.create(
@@ -63,7 +63,7 @@ export async function updateProduct(formData: FormData, product: Product) {
     redirect("auth/login");
   }
 
-  const scopeStripe = new Stripe(process.env.STRIPE_TEST_KEY as string);
+  const scopeStripe = new Stripe(process.env.STRIPE_PUBLIC_KEY as string);
   const title = formData.get("title") as string;
   const description = formData.get("description") as string;
 
@@ -104,7 +104,7 @@ export async function deleteProduct(formData: FormData) {
 
   const productId = formData.get("productId") as string;
   const stripeProductId = formData.get("stripeProductId") as string;
-  const scopeStripe = new Stripe(process.env.STRIPE_TEST_KEY as string);
+  const scopeStripe = new Stripe(process.env.STRIPE_PUBLIC_KEY as string);
 
   try {
     await prisma.product.delete({
