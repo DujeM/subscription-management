@@ -4,7 +4,7 @@ let stripePromise: Promise<Stripe | null>;
 
 const getStripe = () => {
   if (!stripePromise) {
-    stripePromise = loadStripe(process.env.STRIPE_PUBLIC_KEY!);
+    stripePromise = loadStripe(process.env.STRIPE_SECRET_KEY!);
   }
   return stripePromise;
 };

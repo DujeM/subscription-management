@@ -23,7 +23,7 @@ export async function createCustomer(formData: FormData) {
   const phone = formData.get("phone") as string;
   const subscription = formData.get("multiselect") as string;
   const resend = new Resend(process.env.RESEND_KEY);
-  const stripe = new Stripe(process.env.STRIPE_PUBLIC_KEY as string);
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
   let newStripeSubscription: Stripe.Response<Stripe.Subscription>;
   const selectedSubscriptions = subscription ? subscription.split(",") : [];
   const subscriptions = await prisma.subscription.findMany({
@@ -125,7 +125,7 @@ export async function updateCustomer(
   const address = formData.get("address") as string;
   const phone = formData.get("phone") as string;
   const subscription = formData.get("multiselect") as string;
-  const stripe = new Stripe(process.env.STRIPE_PUBLIC_KEY as string);
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
   const session = await auth();
 
   if (session === null) {
@@ -262,7 +262,7 @@ export async function deleteCustomer(formData: FormData) {
 
   const customerId = formData.get("customerId") as string;
   const stripeCustomerId = formData.get("stripeCustomerId") as string;
-  const scopeStripe = new Stripe(process.env.STRIPE_PUBLIC_KEY as string);
+  const scopeStripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
 
   try {
     await prisma.customer.delete({

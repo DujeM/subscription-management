@@ -7,7 +7,7 @@ import { revalidatePath } from "next/cache";
 
 export async function createInvoice(formData: FormData) {
   "use server";
-  const stripe = new Stripe(process.env.STRIPE_PUBLIC_KEY as string);
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
   const session = await auth();
 
   if (session === null) {
@@ -90,7 +90,7 @@ export async function deleteInvoice(formData: FormData) {
 
   const invoiceId = formData.get("invoiceId") as string;
   const stripeInvoiceId = formData.get("stripeInvoiceId") as string;
-  const scopeStripe = new Stripe(process.env.STRIPE_PUBLIC_KEY as string);
+  const scopeStripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
 
   try {
     await prisma.invoice.delete({

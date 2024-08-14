@@ -21,7 +21,7 @@ export default async function SettingsPage({
 
     const getStripeAccountLinks = async () => {
         "use server"
-        const stripe = new Stripe(process.env.STRIPE_PUBLIC_KEY as string);
+        const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
 
         const accountLinks = await stripe.accountLinks.create({
             account: session.user.accountId,
@@ -38,7 +38,7 @@ export default async function SettingsPage({
     }
 
     if (searchParams?.status && searchParams?.status === 'return') {
-        const stripe = new Stripe(process.env.STRIPE_PUBLIC_KEY as string);
+        const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
         const stripeAccount = await stripe.accounts.retrieve(session.user.accountId);
 
         if (!stripeAccount.details_submitted) {
