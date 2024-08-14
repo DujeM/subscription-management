@@ -50,12 +50,12 @@ export default async function Home() {
     const checkout = await stripe.checkout.sessions.create({
       line_items: [
         {
-          price: 'price_1PmwgQRrNnLvy6TVmI2RYTs3',
+          price: 'price_1PnfG0RrNnLvy6TVcuwKXXj9',
           quantity: 1
         }
       ],
       mode: 'payment',
-      success_url: 'http://localhost:3000/success',
+      success_url: 'https://www.subscribx.com/success',
       automatic_tax: {enabled: true},
     });
 

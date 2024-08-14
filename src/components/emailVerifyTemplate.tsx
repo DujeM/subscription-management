@@ -16,7 +16,7 @@ const EmailVerifyTemplate = ({
   <div>
     <h1>Welcome, {fullName}!</h1>
     <p>You have been invited to {clientName} as a customer, click below to activate your account and start using their services.</p>
-    <a href={`http://localhost:3000/activate/${emailToken}`}>Activate</a>
+    <a href={`https://subscribx.com/activate/${emailToken}`}>Activate</a>
   </div>
 );
 

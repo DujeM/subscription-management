@@ -25,8 +25,8 @@ export default async function SettingsPage({
 
         const accountLinks = await stripe.accountLinks.create({
             account: session.user.accountId,
-            refresh_url: 'http://localhost:3000/settings?status=reauth',
-            return_url: 'http://localhost:3000/settings?status=return',
+            refresh_url: 'https://subscribx.com/settings?status=reauth',
+            return_url: 'https://subscribx.com/settings?status=return',
             type: 'account_onboarding',
         });
 
