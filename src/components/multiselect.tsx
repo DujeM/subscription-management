@@ -42,7 +42,7 @@ export default function Multiselect({options, label, defaultValue, placeholder, 
       }
 
       const handleClickOutsideSelectField = (e) => {
-        if (!toggleChecked) {
+        if (toggle && !toggleChecked) {
           return;
         }
 
